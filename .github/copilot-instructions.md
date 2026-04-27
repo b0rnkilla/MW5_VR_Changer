@@ -1,0 +1,79 @@
+# Projektanweisungen für GitHub Copilot
+
+Projekt: MW5_VR-Changer  
+Technologie: C# .NET 9, WPF, MVVM, CommunityToolkit.Mvvm  
+Sprache im Code: Englisch  
+Kommentare und XML-Summaries: Deutsch
+
+## Architektur
+
+- Verwende konsequent MVVM.
+- Keine UI-Logik im Code-Behind, außer technisch zwingend erforderlich.
+- Verwende ObservableObject, ObservableProperty und RelayCommand aus CommunityToolkit.Mvvm.
+- Services kapseln Dateioperationen, JSON-Persistenz und Validierung.
+- ViewModels enthalten keine direkten Dateisystem-Details, sondern nutzen Services.
+
+## Code-Stil
+
+- Nutze .NET-Namenskonventionen.
+- Private Felder: `_camelCase`
+- Properties, Methoden und Commands: `PascalCase`
+- Regions sind optional und nur bei größeren Dateien/Klassen sinnvoll.
+- Keine leeren `#region`-Blöcke erstellen.
+- Keine leeren Konstruktoren erstellen.
+- Falls Regions verwendet werden, dann in dieser Reihenfolge:
+  - Fields
+  - Properties
+  - Constructor
+  - Methods & Events
+- Innerhalb der Regions zuerst private, danach öffentliche Elemente.
+- Commands stehen am Ende der Properties.
+- Keine Emojis, keine ASCII-Sonderzeichen in Kommentaren.
+
+## XML-Summaries
+
+- Für Klassen und Methoden XML-Dokumentation (`///`) erstellen, wenn sie nicht trivial sind.
+- `summary` ist immer Deutsch.
+- Wenn möglich und sinnvoll: `<param>` und/oder `<returns>` verwenden.
+- Einzeilige Summary so schreiben: `/// <summary> Beschreibung </summary>`
+- Mehrzeilige Summary: jede Textzeile mit `<br/>` abschließen.
+
+## Projektlogik
+
+Beim Programmstart muss geprüft werden, ob im Root-Verzeichnis der App.exe folgende Struktur existiert:
+
+MW5VRC/
+MW5VRC/VR/
+MW5VRC/NonVR/
+
+In beiden Unterordnern müssen diese Dateien vorhanden sein:
+
+- modlist.json
+- Game.ini
+- GameUserSettings.ini
+
+Fehlt die Struktur, wird sie angelegt. Fehlende Backup-Dateien werden nicht künstlich mit Inhalt erzeugt, sondern gelten als nicht vorhanden.
+
+## Settings
+
+Die App speichert keine eigenen Einstellungen als JSON.
+
+Beim Start wird versucht, die drei Originaldateien automatisch zu finden (Steam-Installation und AppData).
+Nur wenn die automatische Suche fehlschlägt, wählt der Nutzer die Pfade manuell.
+
+## Verhalten
+
+Der Nutzer wählt drei Originaldateien über Dateiauswahlfelder aus.
+
+Vor dem Kopieren in den Backup-Ordner muss der Nutzer ausdrücklich bestätigen, ob die aktuell aktiven Originaldateien VR- oder NonVR-Einstellungen enthalten.
+
+Erst wenn für VR und NonVR jeweils alle drei Backup-Dateien vorhanden sind, darf der VR/NonVR-Wahlschalter aktiviert werden.
+
+Beim Umschalten werden die drei Dateien aus MW5VRC/VR oder MW5VRC/NonVR genommen und überschreiben die hinterlegten Originaldateien.
+
+## Sicherheit
+
+- Vor jedem Überschreiben prüfen, ob Quelle und Ziel existieren.
+- Dateioperationen über Services kapseln.
+- Exceptions sinnvoll behandeln und dem ViewModel als Statusmeldung bereitstellen.
+- Keine stillen Fehler.
